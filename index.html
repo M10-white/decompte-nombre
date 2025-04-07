@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <link rel="stylesheet" href="assets/styles/index.css">
-  <script src="assets/scripts/index.js"></script>
+  <script src="assets/scripts/index.js" defer></script>
   <title>Timelapse Counter</title>
 </head>
 <body>
@@ -60,11 +60,12 @@
         <div id="counter-wrapper">
           <div id="counter">0</div>
         </div>
-        <div class="view-buttons">
+        <div class="view-buttons" id="viewButtons">
           <button onclick="pauseCounter()" class="neumorphic">Pause</button>
           <button onclick="resumeCounter()" class="neumorphic">Reprendre</button>
           <button onclick="restartCounter()" class="neumorphic">Rejouer</button>
           <button onclick="backToSetup()" class="neumorphic">Retour</button>
+          <button id="exportBtn" onclick="downloadRecording()" class="neumorphic" style="display:none; margin-left: 10px;">Exporter la vidéo</button>
         </div>
       </div>
 
