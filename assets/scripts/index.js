@@ -116,7 +116,14 @@ function createExportButton() {
 }
 
 function downloadRecording() {
-  if (recordedChunks.length > 0) {
+  const format = document.getElementById("format").value;
+
+  if (recordedChunks.length === 0) {
+    alert("Aucune vidéo enregistrée.");
+    return;
+  }
+
+  if (format === "webm") {
     const blob = new Blob(recordedChunks, { type: "video/webm" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -128,8 +135,10 @@ function downloadRecording() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }, 100);
-  } else {
-    alert("Aucune vidéo enregistrée.");
+  } else if (format === "mov") {
+    alert("🎬 Pour convertir la vidéo en .MOV avec transparence, utilisez cette commande FFmpeg :\\n\\n" +
+      "ffmpeg -i timelapse.webm -c:v qtrle -pix_fmt argb timelapse.mov\\n\\n" +
+      "💡 Vous pouvez le faire localement ou avec des outils en ligne comme CloudConvert.");
   }
 }
 
