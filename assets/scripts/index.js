@@ -1,7 +1,5 @@
 let count = 0;
 let end = 0;
-let interval;
-let step = 1;
 let isPaused = false;
 let speed = 10;
 let mediaRecorder;
@@ -12,7 +10,7 @@ let renderInterval;
 function startTimelapse() {
   count = 0;
   end = parseInt(document.getElementById("target").value, 10);
-  speed = parseInt(document.getElementById("speed").value, 10);
+  speed = parseFloat(document.getElementById("speed").value, 10);
   const color = document.getElementById("color").value;
   const font = document.getElementById("font").value;
   const bold = document.getElementById("bold").checked;
@@ -24,11 +22,9 @@ function startTimelapse() {
     return;
   }
 
-  // Styles pour la preview uniquement
   counter.style.color = color;
   counter.style.fontFamily = font;
   counter.style.fontWeight = bold ? "bold" : "normal";
-
   counter.style.fontSize = "200px";
   counter.style.width = "auto";
   counter.style.height = "auto";
@@ -44,9 +40,6 @@ function startTimelapse() {
 
   setupCanvas();
   startRecording();
-  step = Math.max(Math.ceil(end / 300), 1);
-  isPaused = false;
-
   document.getElementById("timelapseOverlay").style.display = "flex";
   runCounter();
 }
@@ -58,13 +51,12 @@ function setupCanvas() {
   const textWidth = parseInt(document.getElementById("textWidth").value, 10);
 
   canvas = document.createElement("canvas");
+  const scale = 3;
 
-  // Appliquer les dimensions uniquement à la vidéo
   if (autoSize) {
     canvas.width = 1280;
     canvas.height = 720;
   } else {
-    const scale = 3;
     canvas.width = (textWidth || 600) * scale;
     canvas.height = (textHeight || 300) * scale;
   }
@@ -74,7 +66,6 @@ function setupCanvas() {
 
   renderInterval = setInterval(() => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     const style = window.getComputedStyle(counter);
     const color = style.color;
     const weight = style.fontWeight;
@@ -83,7 +74,6 @@ function setupCanvas() {
 
     let fontSize = 10;
     ctx.font = `${weight} ${fontSize}px ${family}`;
-
     while (
       fontSize < 1000 &&
       ctx.measureText(text).width < canvas.width * 0.9 &&
@@ -122,7 +112,7 @@ function createExportButton() {
   btn.onclick = downloadRecording;
 
   const container = document.querySelector(".view-buttons") || document.body;
-      container.appendChild(btn);
+  container.appendChild(btn);
 }
 
 function downloadRecording() {
@@ -151,57 +141,51 @@ function stopRecording() {
   }
 }
 
-function pauseCounter() {
-  isPaused = true;
-}
-
-function resumeCounter() {
-  isPaused = false;
-}
-
-function restartCounter() {
-  clearInterval(interval);
-  count = 0;
-  isPaused = false;
-  runCounter();
-}
-
-function backToSetup() {
-  clearInterval(interval);
-  stopRecording();
-  document.getElementById("timelapseOverlay").style.display = "none";
-}
-
 function runCounter() {
   const counter = document.getElementById("counter");
   counter.innerText = count;
-  if (document.getElementById("autoSize").checked) {
-    autoFontSize();
-  }
-  counter.style.animation = "pop 0.4s ease";
   document.getElementById("exportBtn").style.display = "none";
   if (document.getElementById("autoSize").checked) autoFontSize();
+  counter.style.animation = "pop 0.4s ease";
 
   setTimeout(() => {
-    clearInterval(interval);
-    interval = setInterval(() => {
-      if (!isPaused) {
+    let lastTime = performance.now();
+    let elapsed = 0;
+    const step = Math.max(Math.ceil(end / 300), 1);
+
+    function animate(now) {
+      if (isPaused) {
+        lastTime = now;
+        requestAnimationFrame(animate);
+        return;
+      }
+
+      elapsed += now - lastTime;
+      lastTime = now;
+
+      if (elapsed >= speed) {
         count += step;
+        elapsed = 0;
+
         if (count >= end) {
           count = end;
-          clearInterval(interval);
           counter.innerText = count;
           if (document.getElementById("autoSize").checked) autoFontSize();
-        
           setTimeout(() => {
             stopRecording();
             document.getElementById("exportBtn").style.display = "inline-block";
           }, 500);
-        }               
+          return;
+        }
+
         counter.innerText = count;
         if (document.getElementById("autoSize").checked) autoFontSize();
       }
-    }, speed);
+
+      requestAnimationFrame(animate);
+    }
+
+    requestAnimationFrame(animate);
   }, 300);
 }
 
@@ -214,14 +198,13 @@ function resumeCounter() {
 }
 
 function restartCounter() {
-  clearInterval(interval);
   count = 0;
   isPaused = false;
   runCounter();
 }
 
 function backToSetup() {
-  clearInterval(interval);
+  stopRecording();
   document.getElementById("timelapseOverlay").style.display = "none";
 }
 
@@ -232,7 +215,6 @@ document.addEventListener('keydown', (e) => {
 function autoFontSize() {
   const counter = document.getElementById("counter");
   const wrapper = document.getElementById("counter-wrapper");
-
   let fontSize = 10;
   counter.style.fontSize = fontSize + "px";
 
