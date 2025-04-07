@@ -66,25 +66,53 @@ function startTimelapse() {
 
 function setupCanvas() {
   const counter = document.getElementById("counter");
+  const autoSize = document.getElementById("autoSize").checked;
+  const textHeight = parseInt(document.getElementById("textHeight").value, 10);
+  const textWidth = parseInt(document.getElementById("textWidth").value, 10);
+
   canvas = document.createElement("canvas");
-  canvas.width = 1280;
-  canvas.height = 720;
-  ctx = canvas.getContext("2d");
+
+  if (autoSize) {
+    canvas.width = 600;
+    canvas.height = 400;
+  } else {
+    canvas.width = textWidth || 600;
+    canvas.height = textHeight || 400;
+  }
+
+  ctx = canvas.getContext("2d", { alpha: true });
   canvasStream = canvas.captureStream();
 
   renderInterval = setInterval(() => {
-    ctx.fillStyle = window.getComputedStyle(counter).backgroundColor || "#e0e0e0";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.font = `${window.getComputedStyle(counter).fontWeight} ${window.getComputedStyle(counter).fontSize} ${window.getComputedStyle(counter).fontFamily}`;
-    ctx.fillStyle = window.getComputedStyle(counter).color;
+    const style = window.getComputedStyle(counter);
+    const color = style.color;
+    const weight = style.fontWeight;
+    const family = style.fontFamily;
+    const text = counter.innerText;
+
+    // Détection dynamique de la taille maximale
+    let fontSize = 10;
+    ctx.font = `${weight} ${fontSize}px ${family}`;
+
+    while (
+      fontSize < 1000 &&
+      ctx.measureText(text).width < canvas.width * 0.9 &&
+      fontSize < canvas.height * 0.9
+    ) {
+      fontSize++;
+      ctx.font = `${weight} ${fontSize}px ${family}`;
+    }
+
+    ctx.font = `${weight} ${fontSize - 1}px ${family}`;
+    ctx.fillStyle = color;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(counter.innerText, canvas.width / 2, canvas.height / 2);
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
   }, 1000 / 30);
 }
 
-// ⬇ PATCHÉ pour ne pas redéfinir setupCanvas ici
 function startRecording() {
   recordedChunks = [];
   mediaRecorder = new MediaRecorder(canvasStream, { mimeType: 'video/webm' });
