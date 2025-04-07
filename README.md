@@ -48,7 +48,7 @@
 
 1. Clone ou télécharge ce repo :
    ```bash
-   git clone https://github.com/ton-utilisateur/timelapse-counter
+   git clone https://github.com/M10-white/decompte-nombre.git
    cd timelapse-counter
    ```
 
@@ -89,7 +89,7 @@ Projet personnel ou éducatif — **non destiné à la distribution commerciale*
 
 ## 💡 Crédits
 
-Développé avec ❤️ par [TonNom](https://github.com/ton-utilisateur)  
+Développé avec ❤️ par [CHKWEBDEV](https://github.com/ton-utilisateur)  
 Police custom : [OPTIGamma](https://www.ffonts.net/OPTIGamma.font)
 
 ---
