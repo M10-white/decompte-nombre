@@ -132,6 +132,13 @@ button.neumorphic:hover {
   display: none;
 }
 
+#status {
+  margin-top: 20px;
+  font-style: italic;
+  color: #444;
+  text-align: center;
+}
+
 @keyframes pop {
   0% { transform: scale(0.7); opacity: 0.4; }
   50% { transform: scale(1.2); opacity: 1; }

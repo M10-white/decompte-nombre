@@ -8,6 +8,7 @@
   <meta name="description" content="Compteur de timelapse personnalisé avec options de style et d'exportation.">
   <meta name="keywords" content="timelapse, compteur, personnalisé, style, exportation, vidéo">
   <meta name="author" content="CHKWEBDEV">
+  <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.4/dist/ffmpeg.min.js" defer></script>
   <script src="assets/scripts/index.js" defer></script>
   <title>Timelapse Counter</title>
 </head>
@@ -57,12 +58,12 @@
           </div>
         </div>
         <div class="control-group">
-          <label>Format de la vidéo :</label>
+          <label>Format de sortie :</label>
           <select id="format" class="neumorphic">
-            <option value="webm">WEBM (transparent)</option>
-            <option value="mov">MOV (pro montage)</option>
+            <option value="webm">WEBM (rapide, transparent)</option>
+            <option value="mov">MOV (macOS/édition)</option>
           </select>
-        </div>        
+        </div>                 
         <div class="button-group">
           <button onclick="startTimelapse()" class="neumorphic">Lancer</button>
         </div>

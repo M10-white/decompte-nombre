@@ -115,7 +115,7 @@ function createExportButton() {
   container.appendChild(btn);
 }
 
-function downloadRecording() {
+async function downloadRecording() {
   const format = document.getElementById("format").value;
 
   if (recordedChunks.length === 0) {
@@ -123,8 +123,9 @@ function downloadRecording() {
     return;
   }
 
+  const blob = new Blob(recordedChunks, { type: "video/webm" });
+
   if (format === "webm") {
-    const blob = new Blob(recordedChunks, { type: "video/webm" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -135,11 +136,40 @@ function downloadRecording() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }, 100);
-  } else if (format === "mov") {
-    alert("🎬 Pour convertir la vidéo en .MOV avec transparence, utilisez cette commande FFmpeg :\\n\\n" +
-      "ffmpeg -i timelapse.webm -c:v qtrle -pix_fmt argb timelapse.mov\\n\\n" +
-      "💡 Vous pouvez le faire localement ou avec des outils en ligne comme CloudConvert.");
+    return;
   }
+
+  // MOV — Vérifie si FFmpeg est chargé
+  if (typeof FFmpeg === "undefined") {
+    alert("⚠️ FFmpeg.wasm n’est pas encore prêt. Veuillez attendre quelques secondes et réessayer.");
+    return;
+  }
+
+  const { createFFmpeg, fetchFile } = FFmpeg;
+  const ffmpeg = createFFmpeg({ log: true });
+
+  const status = document.getElementById("status") || document.createElement("p");
+  status.id = "status";
+  document.body.appendChild(status);
+  status.textContent = "Chargement de FFmpeg...";
+  await ffmpeg.load();
+
+  ffmpeg.FS('writeFile', 'input.webm', await fetchFile(blob));
+
+  status.textContent = "Conversion en cours...";
+  await ffmpeg.run('-i', 'input.webm', '-c:v', 'qtrle', '-pix_fmt', 'argb', 'output.mov');
+
+  const movData = ffmpeg.FS('readFile', 'output.mov');
+  const movBlob = new Blob([movData.buffer], { type: 'video/quicktime' });
+  const movUrl = URL.createObjectURL(movBlob);
+
+  const a = document.createElement('a');
+  a.href = movUrl;
+  a.download = 'timelapse.mov';
+  document.body.appendChild(a);
+  a.click();
+
+  status.textContent = "✅ Conversion terminée. Téléchargement lancé.";
 }
 
 function stopRecording() {
