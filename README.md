@@ -8,19 +8,19 @@
 
 ## 🚀 Fonctionnalités
 
-- ✅ Saisie du nombre final
-- 🎨 Personnalisation du texte :
+✅ Saisie du nombre final
+🎨 Personnalisation du texte :
   - Couleur
   - Police (dont support de polices personnalisées comme OPTIGamma)
   - Gras
   - Taille automatique ou manuelle
-- ⏱️ Contrôle de la vitesse du timelapse
-- 🖼️ Interface au design **Neumorphic UI**
-- ▶️ Lecture du timelapse dans une vue dédiée
-- ⏸️ Boutons **Pause / Reprendre / Rejouer / Retour**
-- 📹 Enregistrement automatique du timelapse (canvas → `video/webm`)
-- 💾 Bouton **"Exporter la vidéo"** (apparaît à la fin du timelapse)
-- 🔁 Option manuelle de conversion `.webm` vers `.mp4`
+⏱️ Contrôle de la vitesse du timelapse
+🖼️ Interface au design **Neumorphic UI**
+▶️ Lecture du timelapse dans une vue dédiée
+⏸️ Boutons **Pause / Reprendre / Rejouer / Retour**
+📹 Enregistrement automatique du timelapse (canvas → `video/webm`)
+💾 Bouton **"Exporter la vidéo"** (apparaît à la fin du timelapse)
+🔁 Option manuelle de conversion `.webm` vers `.mp4`
 
 ---
 
@@ -48,7 +48,7 @@
 
 1. Clone ou télécharge ce repo :
    ```bash
-   git clone https://github.com/ton-utilisateur/timelapse-counter
+   git clone https://github.com/M10-white/decompte-nombre.git
    cd timelapse-counter
    ```
 
@@ -77,7 +77,7 @@ ffmpeg -i timelapse.webm -c:v libx264 -crf 23 timelapse.mp4
 
 ## 📸 Aperçu
 
-![timelapse preview](preview.png) <!-- Ajoute un visuel de ton app ici -->
+![timelapse preview](https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdGlmcHVncDMyMHh3MGFjcTZqNGt1eXkzYjQwMmdzNHNqcnZ5OWdiaSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3n6qDSqqWwBNhgimHg/giphy.gif)
 
 ---
 
@@ -89,7 +89,7 @@ Projet personnel ou éducatif — **non destiné à la distribution commerciale*
 
 ## 💡 Crédits
 
-Développé avec ❤️ par [TonNom](https://github.com/ton-utilisateur)  
+Développé avec ❤️ par [CHKWEBDEV](https://github.com/M10-white)  
 Police custom : [OPTIGamma](https://www.ffonts.net/OPTIGamma.font)
 
 ---
