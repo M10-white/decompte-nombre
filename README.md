@@ -89,7 +89,7 @@ Projet personnel ou éducatif — **non destiné à la distribution commerciale*
 
 ## 💡 Crédits
 
-Développé avec ❤️ par [CHKWEBDEV](https://github.com/ton-utilisateur)  
+Développé avec ❤️ par [CHKWEBDEV](https://github.com/M10-white)  
 Police custom : [OPTIGamma](https://www.ffonts.net/OPTIGamma.font)
 
 ---
