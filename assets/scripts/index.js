@@ -16,9 +16,6 @@ function startTimelapse() {
   const color = document.getElementById("color").value;
   const font = document.getElementById("font").value;
   const bold = document.getElementById("bold").checked;
-  const autoSize = document.getElementById("autoSize").checked;
-  const textHeight = parseInt(document.getElementById("textHeight").value, 10);
-  const textWidth = parseInt(document.getElementById("textWidth").value, 10);
   const counter = document.getElementById("counter");
   const wrapper = document.getElementById("counter-wrapper");
 
@@ -27,33 +24,23 @@ function startTimelapse() {
     return;
   }
 
+  // Styles pour la preview uniquement
   counter.style.color = color;
   counter.style.fontFamily = font;
   counter.style.fontWeight = bold ? "bold" : "normal";
 
-  if (autoSize) {
-    counter.style.fontSize = "200px";
-    counter.style.width = "auto";
-    counter.style.height = "auto";
-    wrapper.style.width = "90vw";
-    wrapper.style.height = "50vh";
-    wrapper.style.margin = "0 auto";
-  } else {
-    const fontSize = textHeight ? `${textHeight}px` : "80px";
+  counter.style.fontSize = "200px";
+  counter.style.width = "auto";
+  counter.style.height = "auto";
+  counter.style.overflow = "visible";
 
-    counter.style.fontSize = fontSize;
-    counter.style.width = "fit-content";
-    counter.style.height = "fit-content";
-    counter.style.overflow = "visible";
-
-    wrapper.style.width = "auto";
-    wrapper.style.height = "auto";
-    wrapper.style.display = "flex";
-    wrapper.style.alignItems = "center";
-    wrapper.style.justifyContent = "center";
-    wrapper.style.margin = "0 auto";
-    wrapper.style.overflow = "hidden";
-  }
+  wrapper.style.width = "90vw";
+  wrapper.style.height = "50vh";
+  wrapper.style.display = "flex";
+  wrapper.style.alignItems = "center";
+  wrapper.style.justifyContent = "center";
+  wrapper.style.margin = "0 auto";
+  wrapper.style.overflow = "hidden";
 
   setupCanvas();
   startRecording();
@@ -72,12 +59,14 @@ function setupCanvas() {
 
   canvas = document.createElement("canvas");
 
+  // Appliquer les dimensions uniquement à la vidéo
   if (autoSize) {
-    canvas.width = 600;
-    canvas.height = 400;
+    canvas.width = 1280;
+    canvas.height = 720;
   } else {
-    canvas.width = textWidth || 600;
-    canvas.height = textHeight || 400;
+    const scale = 3;
+    canvas.width = (textWidth || 600) * scale;
+    canvas.height = (textHeight || 300) * scale;
   }
 
   ctx = canvas.getContext("2d", { alpha: true });
@@ -92,7 +81,6 @@ function setupCanvas() {
     const family = style.fontFamily;
     const text = counter.innerText;
 
-    // Détection dynamique de la taille maximale
     let fontSize = 10;
     ctx.font = `${weight} ${fontSize}px ${family}`;
 
@@ -105,12 +93,12 @@ function setupCanvas() {
       ctx.font = `${weight} ${fontSize}px ${family}`;
     }
 
-    ctx.font = `${weight} ${fontSize - 1}px ${family}`;
+    ctx.font = `${fontSize - 1}px ${family}`;
     ctx.fillStyle = color;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-  }, 1000 / 30);
+  }, 1000 / 15);
 }
 
 function startRecording() {
@@ -187,6 +175,9 @@ function backToSetup() {
 function runCounter() {
   const counter = document.getElementById("counter");
   counter.innerText = count;
+  if (document.getElementById("autoSize").checked) {
+    autoFontSize();
+  }
   counter.style.animation = "pop 0.4s ease";
   document.getElementById("exportBtn").style.display = "none";
   if (document.getElementById("autoSize").checked) autoFontSize();
@@ -246,8 +237,8 @@ function autoFontSize() {
   counter.style.fontSize = fontSize + "px";
 
   while (
-    counter.scrollWidth < wrapper.clientWidth &&
-    counter.scrollHeight < wrapper.clientHeight &&
+    counter.scrollWidth < wrapper.clientWidth * 0.95 &&
+    counter.scrollHeight < wrapper.clientHeight * 0.95 &&
     fontSize < 1000
   ) {
     fontSize++;

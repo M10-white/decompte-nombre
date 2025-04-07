@@ -98,11 +98,11 @@ button.neumorphic:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 90vw;
-  height: 50vh;
   overflow: hidden;
-  position: relative;
+  max-width: 100vw;
+  max-height: 100vh;
 }
+
 
 #counter {
   display: inline-block;
