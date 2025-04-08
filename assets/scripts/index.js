@@ -70,7 +70,7 @@ function setupCanvas() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   canvas.style.display = "none";
   canvas.style.pointerEvents = "none"; // évite toute interaction
-  
+
   renderInterval = setInterval(() => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const style = window.getComputedStyle(counter);
@@ -124,7 +124,29 @@ async function downloadRecording() {
     a.click();
     URL.revokeObjectURL(url);
     hideLoading();
-  } else {
+    
+  } else if (format === "mov") {
+    try {
+      const response = await fetch("/convert-locally-mov");
+      const data = await response.json();
+  
+      const fullMessage = [
+        data.message,
+        "",
+        ...data.instructions,
+        "",
+        data.ffmpeg_command
+      ].join("\n");
+  
+      alert(fullMessage);
+    } catch (err) {
+      alert("Erreur lors de la récupération des instructions de conversion locale.");
+    } finally {
+      hideLoading();
+    }
+  
+    return;
+  }else {
     const formData = new FormData();
     formData.append("video", blob);
 

@@ -37,6 +37,20 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(publicPath, "index.html"));
 });
 
+app.get("/convert-locally-mov", (req, res) => {
+    res.status(200).json({
+      message: "La conversion MOV avec transparence est trop lourde pour le serveur.",
+      instructions: [
+        "1. Télécharge ta vidéo en .webm comme d'habitude.",
+        "2. Installe FFmpeg (si ce n’est pas déjà fait) : https://ffmpeg.org/download.html",
+        "3. Place la vidéo .webm dans un dossier sur ton ordinateur.",
+        "4. Ouvre un terminal dans ce dossier.",
+        "5. Exécute la commande ci-dessous pour générer un .mov avec transparence :",
+      ],
+      ffmpeg_command: "ffmpeg -i timelapse.webm -c:v prores_ks -pix_fmt yuva444p10le -profile:v 4 timelapse.mov"
+    });
+  });
+
 app.post("/convert", upload.single("video"), (req, res) => {
   console.log("✅ Route /convert bien appelée");
 
