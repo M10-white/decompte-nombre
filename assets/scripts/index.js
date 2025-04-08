@@ -75,7 +75,11 @@ function setupCanvas() {
   canvas.style.display = "none";
   canvas.style.pointerEvents = "none";
 
-  renderInterval = setInterval(() => {
+  let lastRender = performance.now();
+
+function renderCanvas(now) {
+  if (now - lastRender >= 1000 / 60) {
+    lastRender = now;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const style = window.getComputedStyle(counter);
     const color = style.color;
@@ -87,8 +91,8 @@ function setupCanvas() {
     ctx.font = `${weight} ${fontSize}px ${family}`;
     while (
       fontSize < 1000 &&
-      ctx.measureText(text).width < canvas.width * 0.8 &&
-      fontSize < canvas.height * 0.8
+      ctx.measureText(text).width < canvas.width * 0.9 &&
+      fontSize < canvas.height * 0.9
     ) {
       fontSize++;
       ctx.font = `${weight} ${fontSize}px ${family}`;
@@ -99,18 +103,22 @@ function setupCanvas() {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-  }, 1000 / 30);
+  }
+
+  renderInterval = requestAnimationFrame(renderCanvas);
+}
+renderInterval = requestAnimationFrame(renderCanvas);
 }
 
-function startRecording() {
-  recordedChunks = [];
-  mediaRecorder = new MediaRecorder(canvasStream, { mimeType: "video/webm" });
-  mediaRecorder.ondataavailable = function (e) {
-    if (e.data.size > 0) recordedChunks.push(e.data);
-  };
-  mediaRecorder.start();
+function stopRecording() {
+  if (mediaRecorder && mediaRecorder.state !== "inactive") {
+    setTimeout(() => {
+      mediaRecorder.stop();
+      cancelAnimationFrame(renderInterval); // au lieu de clearInterval
+      document.getElementById("exportBtn").style.display = "inline-block";
+    }, 300); // léger délai pour finaliser les frames
+  }
 }
-
 async function downloadRecording() {
   const format = document.getElementById("format").value;
   if (recordedChunks.length === 0) return;
