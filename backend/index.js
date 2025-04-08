@@ -67,11 +67,11 @@ app.post("/convert", upload.single("video"), (req, res) => {
     ffmpegCommand = ffmpegCommand
     .videoCodec("prores_ks")
     .outputOptions([
-      "-pix_fmt yuva444p10le",       // Format avec canal alpha
-      "-profile:v 4",                // ProRes 4444 (nécessaire pour transparence)
+      "-pix_fmt yuva444p10le",          // Canal alpha
+      "-profile:v 4",                   // ProRes 4444
       "-r 30",
-      "-vf", "format=yuva444p10le",
-      "-b:v 5M"
+      "-vf", "format=yuva444p10le,scale=if(gt(iw,1280),1280,iw):if(gt(ih,720),720,ih)",
+      "-b:v", "2M"                      // Réduit la charge
     ]);
       
   } else {
