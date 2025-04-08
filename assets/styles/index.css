@@ -12,7 +12,7 @@
 
 body {
   background-color: var(--bg);
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'OPTIGamma', opentype;
   margin: 0;
   padding: 20px;
   color: var(--text-color);
