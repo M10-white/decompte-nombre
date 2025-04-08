@@ -10,6 +10,10 @@
   --text-color: #333;
 }
 
+html, body {
+  background: transparent !important;
+}
+
 body {
   background-color: var(--bg);
   font-family: 'OPTIGamma', opentype;
