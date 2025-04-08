@@ -103,11 +103,12 @@ button.neumorphic:hover {
   max-height: 100vh;
 }
 
-
 #counter {
   display: inline-block;
-  font-size: 200px;
+  font-family: 'OPTIGamma', opentype;
   font-weight: bold;
+  font-size: min(20vw, 45vh);
+  line-height: 1;
   white-space: nowrap;
   text-align: center;
   letter-spacing: 5px;
@@ -138,7 +139,7 @@ button.neumorphic:hover {
   color: #444;
   text-align: center;
 }
-/* Écran de chargement global */
+
 #loadingOverlay,
 #exportOverlay {
   position: fixed;
