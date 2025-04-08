@@ -62,13 +62,14 @@ app.post("/convert", upload.single("video"), (req, res) => {
         "-b:v 1M",
         "-r 30"
       ]);
-  } else if (format === "mov") {
-    ffmpegCommand = ffmpegCommand
-      .videoCodec("qtrle") // pour alpha + compatibilité
-      .outputOptions([
-        "-pix_fmt argb",
-        "-r 30"
-      ]);
+    } else if (format === "mov") {
+        ffmpegCommand = ffmpegCommand
+          .videoCodec("prores_ks")
+          .outputOptions([
+            "-pix_fmt yuva444p10le", // prend en charge l'alpha
+            "-profile:v 4",          // profil ProRes 4444
+            "-r 30"
+          ]);
   } else {
     // .mp4 ou autre, sans alpha
     ffmpegCommand = ffmpegCommand
