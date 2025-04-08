@@ -6,19 +6,18 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copie les dépendances backend
-COPY backend/package*.json ./
-RUN npm install
+# Dépendances backend
+COPY backend/package*.json ./backend/
+RUN cd backend && npm install
 
-# Copie les fichiers backend
-COPY backend/ .
+# Copie l'intégralité du projet dans /app (inclut index.html, assets, etc.)
+COPY . .
 
-# Corrigé ici : copie ffmpeg depuis /usr/local/bin
+# Copie ffmpeg/ffprobe
 COPY --from=ffmpeg /usr/local/bin/ffmpeg /usr/bin/ffmpeg
 COPY --from=ffmpeg /usr/local/bin/ffprobe /usr/bin/ffprobe
 
-# Port d'écoute
 EXPOSE 8080
 
-# Lancement
-CMD ["node", "index.js"]
+# Lance le serveur depuis le dossier backend
+CMD ["node", "backend/index.js"]
