@@ -1,24 +1,20 @@
-FROM jrottenberg/ffmpeg:4.4-alpine as ffmpeg
+FROM node:18-bullseye
 
-FROM node:18-alpine
+# Installation de ffmpeg directement depuis apt
+RUN apt update && apt install -y ffmpeg && apt clean
 
+# Création du dossier de travail
 WORKDIR /app
 
-# Copie le backend
+# Installation des dépendances backend
 COPY backend/package*.json ./backend/
 RUN cd backend && npm install
 
-# Copie tout le reste (frontend inclus)
+# Copie de tout le projet (frontend + backend)
 COPY . .
 
-# Copie ffmpeg et ffprobe depuis l'étape ffmpeg
-COPY --from=ffmpeg /usr/local/bin/ffmpeg /usr/local/bin/ffmpeg
-COPY --from=ffmpeg /usr/local/bin/ffprobe /usr/local/bin/ffprobe
-
-# Lien symbolique si nécessaire
-RUN ln -s /usr/local/bin/ffmpeg /usr/bin/ffmpeg && \
-    ln -s /usr/local/bin/ffprobe /usr/bin/ffprobe
-
+# Exposition du port
 EXPOSE 8080
 
+# Lancement de l'application
 CMD ["node", "backend/index.js"]
