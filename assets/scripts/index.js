@@ -55,7 +55,7 @@ function setupCanvas() {
   const autoSize = document.getElementById("autoSize").checked;
   const textHeight = parseInt(document.getElementById("textHeight").value, 10);
   const textWidth = parseInt(document.getElementById("textWidth").value, 10);
-  const scale = 5;
+  const scale = 8;
 
   const canvas = document.createElement("canvas");
   canvas.width = autoSize ? 1280 : (textWidth || 600) * scale;
@@ -87,8 +87,8 @@ function setupCanvas() {
     ctx.font = `${weight} ${fontSize}px ${family}`;
     while (
       fontSize < 1000 &&
-      ctx.measureText(text).width < canvas.width * 0.9 &&
-      fontSize < canvas.height * 0.9
+      ctx.measureText(text).width < canvas.width * 0.8 &&
+      fontSize < canvas.height * 0.8
     ) {
       fontSize++;
       ctx.font = `${weight} ${fontSize}px ${family}`;
