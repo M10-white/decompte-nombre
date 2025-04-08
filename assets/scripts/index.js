@@ -233,7 +233,6 @@ function runCounter() {
   }
 
   const rawValue = targetInput.value;
-  console.log("📥 Valeur entrée :", rawValue);
   const end = parseInt(rawValue);
 
   if (isNaN(end) || end <= 0) {
@@ -241,8 +240,8 @@ function runCounter() {
     return;
   }
 
-  const speed = parseInt(document.getElementById("speed").value) || 10;
-
+  const baseSpeed = parseInt(document.getElementById("speed").value) || 10;
+  const firstStepsSlow = 10;
   count = 0;
   counter.innerText = count;
   document.getElementById("exportBtn").style.display = "none";
@@ -260,7 +259,9 @@ function runCounter() {
     }
 
     const elapsed = now - lastTime;
-    if (elapsed >= speed) {
+    const currentSpeed = count < firstStepsSlow ? baseSpeed * 2 : baseSpeed;
+
+    if (elapsed >= currentSpeed) {
       count += step;
       lastTime = now;
 
@@ -281,7 +282,6 @@ function runCounter() {
 
   requestAnimationFrame(animate);
 }
-
 
 function pauseCounter() { isPaused = true; }
 function resumeCounter() { isPaused = false; }
