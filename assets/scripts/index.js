@@ -58,8 +58,8 @@ function setupCanvas() {
   const scale = 8;
 
   const canvas = document.createElement("canvas");
-  canvas.width = autoSize ? 1280 : (textWidth || 600) * scale;
-  canvas.height = autoSize ? 720 : (textHeight || 300) * scale;
+  canvas.width = autoSize ? 1920 : (textWidth || 600) * scale;
+  canvas.height = autoSize ? 1080 : (textHeight || 300) * scale;
 
   canvasStream = canvas.captureStream();
   const ctx = canvas.getContext("2d", { alpha: true });

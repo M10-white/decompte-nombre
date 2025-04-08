@@ -69,15 +69,15 @@ app.post("/convert", upload.single("video"), (req, res) => {
 
   if (format === "webm") {
     ffmpegCommand = ffmpegCommand
-      .videoCodec("libvpx")
+      .videoCodec("libvpx-vp9")
+      .noAudio()
       .outputOptions([
-        "-pix_fmt yuva420p",         // Avec transparence
-        "-auto-alt-ref 0",           // Désactive l'auto-ref (problème alpha parfois)
-        "-b:v 0",                    // On utilise le CRF uniquement
-        "-crf 5",                    // Qualité haute (baisser le nombre = meilleure qualité)
-        "-cpu-used 0",              // Qualité max (mais plus lent)
-        "-r 30"                      // 30 FPS
-      ]);  
+        "-pix_fmt yuva420p",
+        "-crf 15",               // qualité visuelle très haute
+        "-b:v 0",                // mode CBR désactivé pour laisser CRF gérer
+        "-auto-alt-ref 0",       // éviter les artefacts avec transparence
+        "-r 60"                  // fluidité maximale
+      ]);
 
     } else if (format === "mov") {
         ffmpegCommand = ffmpegCommand
