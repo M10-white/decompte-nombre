@@ -110,15 +110,15 @@ function renderCanvas(now) {
 renderInterval = requestAnimationFrame(renderCanvas);
 }
 
-function stopRecording() {
-  if (mediaRecorder && mediaRecorder.state !== "inactive") {
-    setTimeout(() => {
-      mediaRecorder.stop();
-      cancelAnimationFrame(renderInterval); // au lieu de clearInterval
-      document.getElementById("exportBtn").style.display = "inline-block";
-    }, 300); // léger délai pour finaliser les frames
-  }
+function startRecording() {
+  recordedChunks = [];
+  mediaRecorder = new MediaRecorder(canvasStream, { mimeType: "video/webm" });
+  mediaRecorder.ondataavailable = function (e) {
+    if (e.data.size > 0) recordedChunks.push(e.data);
+  };
+  mediaRecorder.start();
 }
+
 async function downloadRecording() {
   const format = document.getElementById("format").value;
   if (recordedChunks.length === 0) return;
@@ -214,11 +214,14 @@ async function downloadRecording() {
 
 function stopRecording() {
   if (mediaRecorder && mediaRecorder.state !== "inactive") {
-    mediaRecorder.stop();
-    clearInterval(renderInterval);
-    document.getElementById("exportBtn").style.display = "inline-block";
+    setTimeout(() => {
+      mediaRecorder.stop();
+      cancelAnimationFrame(renderInterval); // au lieu de clearInterval
+      document.getElementById("exportBtn").style.display = "inline-block";
+    }, 300); // léger délai pour finaliser les frames
   }
 }
+
 
 function runCounter() {
   const counter = document.getElementById("counter");
