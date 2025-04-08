@@ -62,17 +62,18 @@ app.post("/convert", upload.single("video"), (req, res) => {
         "-b:v 1M",
         "-r 30"
       ]);
+      
     } else if (format === "mov") {
         ffmpegCommand = ffmpegCommand
-        .videoCodec("libx264")
-        .outputOptions([
-          "-pix_fmt yuv420p",
-          "-vf", "scale='if(gt(iw,960),960,iw)':'if(gt(ih,540),540,ih)'",
-          "-r 24",
-          "-b:v 1M",
-          "-preset ultrafast",
-          "-movflags +faststart"
-        ])        
+          .videoCodec("prores_ks")
+          .outputOptions([
+            "-pix_fmt yuva444p10le", // Format avec alpha de qualité pro
+            "-profile:v 4",           // ProRes 4444 (profil avec alpha)
+            "-vf", "scale='if(gt(iw,640),640,iw)':'if(gt(ih,360),360,ih)'", // downscale léger
+            "-r 24",
+            "-b:v 800k",              // bitrate plus faible
+            "-preset ultrafast"
+          ]);     
       
   } else {
     // .mp4 ou autre, sans alpha
