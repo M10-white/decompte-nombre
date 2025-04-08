@@ -32,6 +32,10 @@ app.use(cors());
 // Sert le frontend
 app.use(express.static(path.join(__dirname, "..")));
 
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "..", "index.html"));
+});
+
 app.post("/convert", upload.single("video"), (req, res) => {
   console.log("✅ Route /convert bien appelée");
 
