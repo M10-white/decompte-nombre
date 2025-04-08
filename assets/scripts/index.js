@@ -160,8 +160,25 @@ function stopRecording() {
 
 function runCounter() {
   const counter = document.getElementById("counter");
-  const end = parseInt(document.getElementById("target").value);
-  const speed = parseInt(document.getElementById("speed").value);
+  const targetInput = document.getElementById("target");
+
+  if (!targetInput) {
+    alert("Champ 'Nombre final' introuvable !");
+    return;
+  }
+
+  const rawValue = targetInput.value;
+  console.log("📥 Valeur entrée :", rawValue);
+  const end = parseInt(rawValue);
+
+  if (isNaN(end) || end <= 0) {
+    alert("Veuillez entrer un nombre final valide.");
+    return;
+  }
+
+  const speed = parseInt(document.getElementById("speed").value) || 10;
+
+  count = 0;
   counter.innerText = count;
   document.getElementById("exportBtn").style.display = "none";
   if (document.getElementById("autoSize").checked) autoFontSize();
@@ -199,6 +216,7 @@ function runCounter() {
 
   requestAnimationFrame(animate);
 }
+
 
 function pauseCounter() { isPaused = true; }
 function resumeCounter() { isPaused = false; }
