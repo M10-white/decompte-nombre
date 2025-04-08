@@ -66,9 +66,11 @@ app.post("/convert", upload.single("video"), (req, res) => {
         ffmpegCommand = ffmpegCommand
           .videoCodec("prores_ks")
           .outputOptions([
-            "-pix_fmt yuva444p10le", // prend en charge l'alpha
-            "-profile:v 4",          // profil ProRes 4444
-            "-r 30"
+            "-pix_fmt yuva420p",      // moins gourmand que yuva444p10le
+            "-profile:v 4",           // ProRes 4444
+            "-r 24",                  // framerate plus léger
+            "-crf 30",                // qualité moins haute
+            "-preset ultrafast"       // pour réduire la charge CPU
           ]);
   } else {
     // .mp4 ou autre, sans alpha
