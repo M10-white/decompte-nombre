@@ -65,9 +65,12 @@ function setupCanvas() {
   const ctx = canvas.getContext("2d", { alpha: true });
   canvas.style.backgroundColor = "transparent";
   canvas.style.opacity = "1";
-  canvas.style.background = "transparent";
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "rgba(0,0,0,0)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
   canvas.style.display = "none";
-
+  canvas.style.pointerEvents = "none"; // évite toute interaction
+  
   renderInterval = setInterval(() => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const style = window.getComputedStyle(counter);
