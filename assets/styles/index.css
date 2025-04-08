@@ -138,25 +138,23 @@ button.neumorphic:hover {
   color: #444;
   text-align: center;
 }
-/* Écran de chargement global */
+
 #loadingOverlay,
 #exportOverlay {
   position: fixed;
-  z-index: 10000;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(224, 224, 224, 0.9);
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  z-index: 9999;
   display: flex;
-  justify-content: center;
   align-items: center;
-  flex-direction: column;
-  backdrop-filter: blur(6px);
-  font-size: 1.5rem;
+  justify-content: center;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 1.8rem;
   font-weight: bold;
   color: #333;
-  text-align: center;
 }
 
 .spinner {
