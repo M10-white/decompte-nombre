@@ -48,8 +48,13 @@ function setupCanvas() {
   const scale = 3;
 
   canvas = document.createElement("canvas");
-  canvas.width = autoSize ? 1280 : (textWidth || 600) * scale;
-  canvas.height = autoSize ? 720 : (textHeight || 300) * scale;
+  if (autoSize) {
+    canvas.width = 1280;
+    canvas.height = 720;
+  } else {
+    canvas.width = (textWidth || 600) * scale;
+    canvas.height = (textHeight || 300) * scale;
+  }
 
   ctx = canvas.getContext("2d", { alpha: true });
   canvasStream = canvas.captureStream();
@@ -84,7 +89,7 @@ function setupCanvas() {
 function startRecording() {
   recordedChunks = [];
   mediaRecorder = new MediaRecorder(canvasStream, { mimeType: "video/webm" });
-  mediaRecorder.ondataavailable = e => {
+  mediaRecorder.ondataavailable = function (e) {
     if (e.data.size > 0) recordedChunks.push(e.data);
   };
   mediaRecorder.start();
@@ -105,31 +110,29 @@ async function downloadRecording() {
     document.body.appendChild(a);
     a.click();
     URL.revokeObjectURL(url);
-  } else if (["mov", "mp4"].includes(format)) {
+  } else {
     const formData = new FormData();
     formData.append("video", blob);
 
-    const response = await fetch(
-      `https://timelapse-counter-production.up.railway.app/convert?format=${format}`,
-      {
+    try {
+      const res = await fetch(`https://timelapse-counter-production.up.railway.app/convert?format=${format}`, {
         method: "POST",
-        body: formData,
-      }
-    );
+        body: formData
+      });
 
-    if (!response.ok) {
-      console.error("Conversion failed");
-      return;
+      if (!res.ok) throw new Error("Conversion failed");
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `timelapse.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Conversion failed", err);
     }
-
-    const blobConverted = await response.blob();
-    const url = URL.createObjectURL(blobConverted);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `timelapse.${format}`;
-    document.body.appendChild(a);
-    a.click();
-    URL.revokeObjectURL(url);
   }
 }
 
@@ -181,35 +184,25 @@ function runCounter() {
   requestAnimationFrame(animate);
 }
 
-function pauseCounter() {
-  isPaused = true;
-}
-
-function resumeCounter() {
-  isPaused = false;
-}
-
+function pauseCounter() { isPaused = true; }
+function resumeCounter() { isPaused = false; }
 function restartCounter() {
   count = 0;
   isPaused = false;
   runCounter();
 }
-
 function backToSetup() {
   stopRecording();
   document.getElementById("timelapseOverlay").style.display = "none";
 }
-
-document.addEventListener("keydown", e => {
+document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") backToSetup();
 });
-
 function autoFontSize() {
   const counter = document.getElementById("counter");
   const wrapper = document.getElementById("counter-wrapper");
   let fontSize = 10;
   counter.style.fontSize = fontSize + "px";
-
   while (
     counter.scrollWidth < wrapper.clientWidth * 0.95 &&
     counter.scrollHeight < wrapper.clientHeight * 0.95 &&
@@ -218,14 +211,11 @@ function autoFontSize() {
     fontSize++;
     counter.style.fontSize = fontSize + "px";
   }
-
   counter.style.fontSize = fontSize - 1 + "px";
 }
-
 function toggleSizeInputs() {
   const autoSize = document.getElementById("autoSize").checked;
   document.getElementById("textHeightGroup").style.display = autoSize ? "none" : "flex";
   document.getElementById("textWidthGroup").style.display = autoSize ? "none" : "flex";
 }
-
 window.onload = toggleSizeInputs;
