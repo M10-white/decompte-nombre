@@ -4,25 +4,33 @@ const cors = require("cors");
 const ffmpeg = require("fluent-ffmpeg");
 const fs = require("fs");
 const path = require("path");
+const { execSync } = require("child_process");
 
 const app = express();
 const upload = multer({ dest: "uploads/" });
 
-// Création automatique des dossiers
+// Crée automatiquement les dossiers nécessaires
 ["uploads", "backend/converted"].forEach(dir => {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 });
 
-// Autorise le frontend
+// Détection manuelle de ffmpeg (pour Railway + Nixpacks)
+function findFFmpegBinary() {
+  try {
+    const ffmpegPath = execSync("which ffmpeg").toString().trim();
+    ffmpeg.setFfmpegPath(ffmpegPath);
+    console.log("✅ FFmpeg trouvé :", ffmpegPath);
+  } catch (error) {
+    console.error("❌ Impossible de trouver ffmpeg automatiquement");
+  }
+}
+
+findFFmpegBinary();
+
 app.use(cors());
 
-// Sert le frontend (index.html + assets)
+// Sert le frontend
 app.use(express.static(path.join(__dirname, "..")));
-
-// 🔥 Corrige l'accès à la page d'accueil (GET /)
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "index.html"));
-});
 
 app.post("/convert", upload.single("video"), (req, res) => {
   console.log("✅ Route /convert bien appelée");
@@ -53,23 +61,7 @@ app.post("/convert", upload.single("video"), (req, res) => {
     .save(outputPath);
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`✅ Backend running on http://localhost:${PORT}`);
 });
-
-const ffmpegPath = "/nix/store"; // dossier de base où Nix installe les paquets
-
-// Recherche récursive de ffmpeg (version stable)
-const findFFmpeg = () => {
-  const { execSync } = require("child_process");
-  try {
-    const path = execSync("which ffmpeg").toString().trim();
-    ffmpeg.setFfmpegPath(path);
-    console.log("✅ FFmpeg trouvé :", path);
-  } catch (err) {
-    console.error("❌ Impossible de trouver ffmpeg automatiquement");
-  }
-};
-
-findFFmpeg();
