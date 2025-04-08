@@ -64,15 +64,16 @@ app.post("/convert", upload.single("video"), (req, res) => {
       ]);
     } else if (format === "mov") {
         ffmpegCommand = ffmpegCommand
-          .videoCodec("prores_ks")
-          .outputOptions([
-            "-vf", "scale='if(gt(iw,1280),1280,iw)':'if(gt(ih,720),720,ih)'",
-            "-pix_fmt yuva420p",
-            "-profile:v 4",
-            "-r 24",
-            "-crf 30",
-            "-preset ultrafast"
-          ])
+        .videoCodec("libx264")
+        .outputOptions([
+          "-pix_fmt yuv420p",
+          "-vf", "scale='if(gt(iw,960),960,iw)':'if(gt(ih,540),540,ih)'",
+          "-r 24",
+          "-b:v 1M",
+          "-preset ultrafast",
+          "-movflags +faststart"
+        ])        
+      
   } else {
     // .mp4 ou autre, sans alpha
     ffmpegCommand = ffmpegCommand
