@@ -71,11 +71,13 @@ app.post("/convert", upload.single("video"), (req, res) => {
     ffmpegCommand = ffmpegCommand
       .videoCodec("libvpx")
       .outputOptions([
-        "-pix_fmt yuva420p",
-        "-auto-alt-ref 0",
-        "-b:v 1M",
-        "-r 30"
-      ]);
+        "-pix_fmt yuva420p",         // Avec transparence
+        "-auto-alt-ref 0",           // Désactive l'auto-ref (problème alpha parfois)
+        "-b:v 0",                    // On utilise le CRF uniquement
+        "-crf 5",                    // Qualité haute (baisser le nombre = meilleure qualité)
+        "-cpu-used 0",              // Qualité max (mais plus lent)
+        "-r 30"                      // 30 FPS
+      ]);  
 
     } else if (format === "mov") {
         ffmpegCommand = ffmpegCommand
