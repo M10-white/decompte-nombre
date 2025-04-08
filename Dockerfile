@@ -1,25 +1,28 @@
-# Étape 1 : FFmpeg (à copier)
+# Étape 1 : image avec FFmpeg
 FROM jrottenberg/ffmpeg:4.4-alpine as ffmpeg
 
-# Étape 2 : Node backend
+# Étape 2 : image Node.js
 FROM node:18-alpine
 
-# Dossier de travail
-WORKDIR /app
+# Dossier de travail => on reste dans /backend comme chez toi
+WORKDIR /backend
 
-# Copie du code source
-COPY . .
+# Copie des fichiers nécessaires depuis le dossier local backend/
+COPY backend/package*.json ./
 
-# Copie de ffmpeg et ffprobe depuis l'étape précédente
+# Installation des dépendances
+RUN npm install
+
+# Copie du reste du code backend
+COPY backend/. .
+
+# Ajout de ffmpeg/ffprobe à l'image
 COPY --from=ffmpeg /usr/bin/ffmpeg /usr/bin/ffmpeg
 COPY --from=ffmpeg /usr/bin/ffprobe /usr/bin/ffprobe
 
-# Installation des dépendances backend
-WORKDIR /app/backend
-RUN npm install
-
-# Expose le port
+# Port Railway
+ENV PORT=8080
 EXPOSE 8080
 
-# Lancement de ton backend
+# Commande de lancement
 CMD ["node", "index.js"]
