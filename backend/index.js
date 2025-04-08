@@ -64,17 +64,15 @@ app.post("/convert", upload.single("video"), (req, res) => {
       ]);
 
 } else if (format === "mov") {
-  ffmpegCommand = ffmpegCommand
+    ffmpegCommand = ffmpegCommand
     .videoCodec("prores_ks")
     .outputOptions([
-      "-pix_fmt yuva444p10le",       // Format AVEC alpha
-      "-profile:v 4",                // ProRes 4444
-      "-vf", "scale='if(gt(iw,640),640,iw)':'if(gt(ih,360),360,ih)'", // léger downscale
-      "-r 24",
-      "-b:v 800k",
-      "-preset ultrafast"
+      "-pix_fmt yuva444p10le",       // Format avec canal alpha
+      "-profile:v 4",                // ProRes 4444 (nécessaire pour transparence)
+      "-r 30",
+      "-vf", "format=yuva444p10le",
+      "-b:v 5M"
     ]);
-    
       
   } else {
     // .mp4 ou autre, sans alpha

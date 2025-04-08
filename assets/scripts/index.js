@@ -63,7 +63,8 @@ function setupCanvas() {
 
   canvasStream = canvas.captureStream();
   const ctx = canvas.getContext("2d", { alpha: true });
-
+  canvas.style.backgroundColor = "transparent";
+  
   renderInterval = setInterval(() => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const style = window.getComputedStyle(counter);
