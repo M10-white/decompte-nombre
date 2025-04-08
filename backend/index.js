@@ -57,3 +57,19 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`✅ Backend running on http://localhost:${PORT}`);
 });
+
+const ffmpegPath = "/nix/store"; // dossier de base où Nix installe les paquets
+
+// Recherche récursive de ffmpeg (version stable)
+const findFFmpeg = () => {
+  const { execSync } = require("child_process");
+  try {
+    const path = execSync("which ffmpeg").toString().trim();
+    ffmpeg.setFfmpegPath(path);
+    console.log("✅ FFmpeg trouvé :", path);
+  } catch (err) {
+    console.error("❌ Impossible de trouver ffmpeg automatiquement");
+  }
+};
+
+findFFmpeg();
