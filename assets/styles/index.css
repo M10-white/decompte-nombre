@@ -106,8 +106,7 @@ button.neumorphic:hover {
 #counter {
   display: inline-block;
   font-family: 'OPTIGamma', opentype;
-  font-weight: bold;
-  font-size: min(20vw, 45vh);
+  font-size: min(20vw, 45vh) !important;
   line-height: 1;
   white-space: nowrap;
   text-align: center;
