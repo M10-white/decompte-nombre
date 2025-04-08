@@ -130,15 +130,39 @@ async function downloadRecording() {
       const response = await fetch("/convert-locally-mov");
       const data = await response.json();
   
-      const fullMessage = [
-        data.message,
-        "",
-        ...data.instructions,
-        "",
-        data.ffmpeg_command
-      ].join("\n");
+      const fullMessage = `${data.message}\n\n${data.instructions.join("\n")}\n\nCommande à exécuter :\n${data.ffmpeg_command}`;
   
-      alert(fullMessage);
+      // Crée une popup personnalisée
+      const modal = document.createElement("div");
+      modal.style.cssText = `
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        background: white; color: #333; padding: 20px; border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.3); z-index: 10001; max-width: 600px;
+        font-family: sans-serif; text-align: left;
+      `;
+  
+      modal.innerHTML = `
+        <h3 style="margin-top:0;">🎥 Export MOV local (transparence)</h3>
+        <p>${data.message}</p>
+        <ul>${data.instructions.map(step => `<li>${step}</li>`).join("")}</ul>
+        <p><strong>Commande à exécuter :</strong></p>
+        <pre style="background:#eee;padding:10px;border-radius:6px;"><code id="ffmpegCommandText">${data.ffmpeg_command}</code></pre>
+        <button id="copyFFmpeg" style="margin-right: 10px;">📋 Copier</button>
+        <button id="closeModal">❌ Fermer</button>
+      `;
+  
+      document.body.appendChild(modal);
+  
+      document.getElementById("copyFFmpeg").onclick = () => {
+        navigator.clipboard.writeText(data.ffmpeg_command)
+          .then(() => alert("Commande copiée dans le presse-papier ✅"))
+          .catch(() => alert("Erreur de copie ❌"));
+      };
+  
+      document.getElementById("closeModal").onclick = () => {
+        modal.remove();
+      };
+  
     } catch (err) {
       alert("Erreur lors de la récupération des instructions de conversion locale.");
     } finally {
@@ -146,6 +170,7 @@ async function downloadRecording() {
     }
   
     return;
+    
   }else {
     const formData = new FormData();
     formData.append("video", blob);
