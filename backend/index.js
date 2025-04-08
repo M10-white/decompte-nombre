@@ -14,7 +14,7 @@ const upload = multer({ dest: "uploads/" });
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 });
 
-// Détection manuelle de ffmpeg (pour Railway + Nixpacks)
+// Détection manuelle de ffmpeg (Railway/Nixpacks)
 function findFFmpegBinary() {
   try {
     const ffmpegPath = execSync("which ffmpeg").toString().trim();
@@ -30,10 +30,11 @@ findFFmpegBinary();
 app.use(cors());
 
 // Sert le frontend
-app.use(express.static(path.join(__dirname, "..")));
+const publicPath = path.join(__dirname, "..");
+app.use(express.static(publicPath));
 
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "..", "index.html"));
+  res.sendFile(path.join(publicPath, "index.html"));
 });
 
 app.post("/convert", upload.single("video"), (req, res) => {
@@ -48,9 +49,19 @@ app.post("/convert", upload.single("video"), (req, res) => {
   const outputName = `output.${format}`;
   const outputPath = path.join(__dirname, "converted", outputName);
 
+  console.log(`ℹ️ Conversion en cours : ${req.file.path} -> ${outputPath}`);
+
   ffmpeg(req.file.path)
-    .outputOptions(["-pix_fmt yuv420p"])
+    .outputOptions([
+      "-pix_fmt yuv420p",
+      "-movflags +faststart", // optimisation pour lecture web
+      "-preset ultrafast",     // moins exigeant en ressources
+      "-max_muxing_queue_size 1024"
+    ])
     .toFormat(format)
+    .on("start", commandLine => {
+      console.log("🎬 Commande lancée :", commandLine);
+    })
     .on("end", () => {
       console.log("✅ Conversion terminée :", outputName);
       fs.unlinkSync(req.file.path);
@@ -59,8 +70,8 @@ app.post("/convert", upload.single("video"), (req, res) => {
       });
     })
     .on("error", err => {
-      console.error("❌ FFmpeg error:", err);
-      res.status(500).send("Conversion failed");
+      console.error("❌ FFmpeg error:", err.message);
+      res.status(500).send("Conversion failed: " + err.message);
     })
     .save(outputPath);
 });
