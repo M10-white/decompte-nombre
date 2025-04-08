@@ -51,15 +51,39 @@ app.post("/convert", upload.single("video"), (req, res) => {
 
   console.log(`ℹ️ Conversion en cours : ${req.file.path} -> ${outputPath}`);
 
-  ffmpeg(req.file.path)
-    .outputOptions([
-        "-r 30",
-        "-pix_fmt yuv420p",
-        "-movflags +faststart", // optimisation pour lecture web
+  let ffmpegCommand = ffmpeg(req.file.path);
+
+  if (format === "webm") {
+    ffmpegCommand = ffmpegCommand
+      .videoCodec("libvpx")
+      .outputOptions([
+        "-pix_fmt yuva420p",
+        "-auto-alt-ref 0",
         "-b:v 1M",
-        "-preset ultrafast",     // moins exigeant en ressources
-        "-max_muxing_queue_size 1024", // pour éviter les erreurs de muxing
-    ])
+        "-r 30"
+      ]);
+  } else if (format === "mov") {
+    ffmpegCommand = ffmpegCommand
+      .videoCodec("qtrle") // pour alpha + compatibilité
+      .outputOptions([
+        "-pix_fmt argb",
+        "-r 30"
+      ]);
+  } else {
+    // .mp4 ou autre, sans alpha
+    ffmpegCommand = ffmpegCommand
+      .videoCodec("libx264")
+      .outputOptions([
+        "-pix_fmt yuv420p",
+        "-r 30",
+        "-b:v 1M",
+        "-preset ultrafast",
+        "-movflags +faststart",
+        "-max_muxing_queue_size 1024"
+      ]);
+  }
+
+  ffmpegCommand
     .toFormat(format)
     .on("start", commandLine => {
       console.log("🎬 Commande lancée :", commandLine);
