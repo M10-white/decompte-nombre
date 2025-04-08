@@ -6,24 +6,6 @@ let mediaRecorder;
 let recordedChunks = [];
 let canvas, ctx, canvasStream;
 let renderInterval;
-let ffmpeg = null;
-
-async function loadFFmpeg() {
-  if (!window.FFmpeg || typeof window.FFmpeg.createFFmpeg !== "function") {
-    console.error("❌ FFmpeg UMD non disponible ou mal exposé.");
-    return;
-  }
-
-  ffmpeg = window.FFmpeg.createFFmpeg({
-    corePath: "assets/ffmpeg/ffmpeg-core.js",
-    log: true
-  });
-
-  await ffmpeg.load();
-  console.log("✅ FFmpeg chargé avec succès !");
-}
-
-window.addEventListener("DOMContentLoaded", loadFFmpeg);
 
 function startTimelapse() {
   count = 0;
@@ -35,9 +17,7 @@ function startTimelapse() {
   const counter = document.getElementById("counter");
   const wrapper = document.getElementById("counter-wrapper");
 
-  if (isNaN(end) || end <= 0) {
-    return;
-  }
+  if (isNaN(end) || end <= 0) return;
 
   counter.style.color = color;
   counter.style.fontFamily = font;
@@ -68,13 +48,8 @@ function setupCanvas() {
   const scale = 3;
 
   canvas = document.createElement("canvas");
-  if (autoSize) {
-    canvas.width = 1280;
-    canvas.height = 720;
-  } else {
-    canvas.width = (textWidth || 600) * scale;
-    canvas.height = (textHeight || 300) * scale;
-  }
+  canvas.width = autoSize ? 1280 : (textWidth || 600) * scale;
+  canvas.height = autoSize ? 720 : (textHeight || 300) * scale;
 
   ctx = canvas.getContext("2d", { alpha: true });
   canvasStream = canvas.captureStream();
@@ -109,7 +84,7 @@ function setupCanvas() {
 function startRecording() {
   recordedChunks = [];
   mediaRecorder = new MediaRecorder(canvasStream, { mimeType: "video/webm" });
-  mediaRecorder.ondataavailable = function (e) {
+  mediaRecorder.ondataavailable = e => {
     if (e.data.size > 0) recordedChunks.push(e.data);
   };
   mediaRecorder.start();
@@ -130,26 +105,31 @@ async function downloadRecording() {
     document.body.appendChild(a);
     a.click();
     URL.revokeObjectURL(url);
-  } else if (format === "mov") {
-    if (!ffmpeg || !ffmpeg.loaded) {
-      console.error("FFmpeg.wasm n’est pas chargé !");
+  } else if (["mov", "mp4"].includes(format)) {
+    const formData = new FormData();
+    formData.append("video", blob);
+
+    const response = await fetch(
+      `https://timelapse-counter-production.up.railway.app/convert?format=${format}`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      console.error("Conversion failed");
       return;
     }
 
-    const buffer = await blob.arrayBuffer();
-    ffmpeg.FS("writeFile", "input.webm", new Uint8Array(buffer));
-    await ffmpeg.run("-i", "input.webm", "-c:v", "qtrle", "-pix_fmt", "argb", "output.mov");
-
-    const movData = ffmpeg.FS("readFile", "output.mov");
-    const movBlob = new Blob([movData.buffer], { type: "video/quicktime" });
-    const movUrl = URL.createObjectURL(movBlob);
-
+    const blobConverted = await response.blob();
+    const url = URL.createObjectURL(blobConverted);
     const a = document.createElement("a");
-    a.href = movUrl;
-    a.download = "timelapse.mov";
+    a.href = url;
+    a.download = `timelapse.${format}`;
     document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(movUrl);
+    URL.revokeObjectURL(url);
   }
 }
 
@@ -220,7 +200,7 @@ function backToSetup() {
   document.getElementById("timelapseOverlay").style.display = "none";
 }
 
-document.addEventListener("keydown", (e) => {
+document.addEventListener("keydown", e => {
   if (e.key === "Escape") backToSetup();
 });
 
