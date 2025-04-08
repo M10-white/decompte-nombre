@@ -70,8 +70,7 @@ app.post("/convert", upload.single("video"), (req, res) => {
             "-pix_fmt yuva444p10le",
             "-profile:v 4",
             "-r 30",
-            "-vf", "format=yuva444p10le", 
-            "-b:v", "3M"
+            "-b:v 3M"
           ]);
       
   } else {
