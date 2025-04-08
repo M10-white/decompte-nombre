@@ -6,6 +6,24 @@ let mediaRecorder;
 let recordedChunks = [];
 let canvas, ctx, canvasStream;
 let renderInterval;
+let ffmpeg = null;
+
+async function loadFFmpeg() {
+  if (!window.FFmpeg || typeof window.FFmpeg.createFFmpeg !== "function") {
+    console.error("❌ FFmpeg UMD non disponible ou mal exposé.");
+    return;
+  }
+
+  ffmpeg = window.FFmpeg.createFFmpeg({
+    corePath: "assets/ffmpeg/ffmpeg-core.js",
+    log: true
+  });
+
+  await ffmpeg.load();
+  console.log("✅ FFmpeg chargé avec succès !");
+}
+
+window.addEventListener("DOMContentLoaded", loadFFmpeg);
 
 function startTimelapse() {
   count = 0;
@@ -18,7 +36,6 @@ function startTimelapse() {
   const wrapper = document.getElementById("counter-wrapper");
 
   if (isNaN(end) || end <= 0) {
-    alert("Veuillez entrer un nombre valide.");
     return;
   }
 
@@ -28,7 +45,6 @@ function startTimelapse() {
   counter.style.fontSize = "200px";
   counter.style.width = "auto";
   counter.style.height = "auto";
-  counter.style.overflow = "visible";
 
   wrapper.style.width = "90vw";
   wrapper.style.height = "50vh";
@@ -49,10 +65,9 @@ function setupCanvas() {
   const autoSize = document.getElementById("autoSize").checked;
   const textHeight = parseInt(document.getElementById("textHeight").value, 10);
   const textWidth = parseInt(document.getElementById("textWidth").value, 10);
-
-  canvas = document.createElement("canvas");
   const scale = 3;
 
+  canvas = document.createElement("canvas");
   if (autoSize) {
     canvas.width = 1280;
     canvas.height = 720;
@@ -88,40 +103,22 @@ function setupCanvas() {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-  }, 1000 / 15);
+  }, 1000 / 30);
 }
 
 function startRecording() {
   recordedChunks = [];
-  mediaRecorder = new MediaRecorder(canvasStream, { mimeType: 'video/webm' });
-  mediaRecorder.ondataavailable = function(e) {
+  mediaRecorder = new MediaRecorder(canvasStream, { mimeType: "video/webm" });
+  mediaRecorder.ondataavailable = function (e) {
     if (e.data.size > 0) recordedChunks.push(e.data);
   };
   mediaRecorder.start();
 }
 
-function createExportButton() {
-  const existing = document.getElementById("exportBtn");
-  if (existing) return;
-
-  const btn = document.createElement("button");
-  btn.id = "exportBtn";
-  btn.textContent = "Télécharger la vidéo (.webm)";
-  btn.className = "neumorphic";
-  btn.style.marginTop = "20px";
-  btn.onclick = downloadRecording;
-
-  const container = document.querySelector(".view-buttons") || document.body;
-  container.appendChild(btn);
-}
-
 async function downloadRecording() {
   const format = document.getElementById("format").value;
 
-  if (recordedChunks.length === 0) {
-    alert("Aucune vidéo enregistrée.");
-    return;
-  }
+  if (recordedChunks.length === 0) return;
 
   const blob = new Blob(recordedChunks, { type: "video/webm" });
 
@@ -132,51 +129,35 @@ async function downloadRecording() {
     a.download = "timelapse.webm";
     document.body.appendChild(a);
     a.click();
-    setTimeout(() => {
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, 100);
-    return;
+    URL.revokeObjectURL(url);
+  } else if (format === "mov") {
+    if (!ffmpeg || !ffmpeg.loaded) {
+      console.error("FFmpeg.wasm n’est pas chargé !");
+      return;
+    }
+
+    const buffer = await blob.arrayBuffer();
+    ffmpeg.FS("writeFile", "input.webm", new Uint8Array(buffer));
+    await ffmpeg.run("-i", "input.webm", "-c:v", "qtrle", "-pix_fmt", "argb", "output.mov");
+
+    const movData = ffmpeg.FS("readFile", "output.mov");
+    const movBlob = new Blob([movData.buffer], { type: "video/quicktime" });
+    const movUrl = URL.createObjectURL(movBlob);
+
+    const a = document.createElement("a");
+    a.href = movUrl;
+    a.download = "timelapse.mov";
+    document.body.appendChild(a);
+    a.click();
+    URL.revokeObjectURL(movUrl);
   }
-
-  // MOV — Vérifie si FFmpeg est chargé
-  if (typeof FFmpeg === "undefined") {
-    alert("⚠️ FFmpeg.wasm n’est pas encore prêt. Veuillez attendre quelques secondes et réessayer.");
-    return;
-  }
-
-  const { createFFmpeg, fetchFile } = FFmpeg;
-  const ffmpeg = createFFmpeg({ log: true });
-
-  const status = document.getElementById("status") || document.createElement("p");
-  status.id = "status";
-  document.body.appendChild(status);
-  status.textContent = "Chargement de FFmpeg...";
-  await ffmpeg.load();
-
-  ffmpeg.FS('writeFile', 'input.webm', await fetchFile(blob));
-
-  status.textContent = "Conversion en cours...";
-  await ffmpeg.run('-i', 'input.webm', '-c:v', 'qtrle', '-pix_fmt', 'argb', 'output.mov');
-
-  const movData = ffmpeg.FS('readFile', 'output.mov');
-  const movBlob = new Blob([movData.buffer], { type: 'video/quicktime' });
-  const movUrl = URL.createObjectURL(movBlob);
-
-  const a = document.createElement('a');
-  a.href = movUrl;
-  a.download = 'timelapse.mov';
-  document.body.appendChild(a);
-  a.click();
-
-  status.textContent = "✅ Conversion terminée. Téléchargement lancé.";
 }
 
 function stopRecording() {
   if (mediaRecorder && mediaRecorder.state !== "inactive") {
     mediaRecorder.stop();
     clearInterval(renderInterval);
-    createExportButton();
+    document.getElementById("exportBtn").style.display = "inline-block";
   }
 }
 
@@ -187,45 +168,37 @@ function runCounter() {
   if (document.getElementById("autoSize").checked) autoFontSize();
   counter.style.animation = "pop 0.4s ease";
 
-  setTimeout(() => {
-    let lastTime = performance.now();
-    let elapsed = 0;
-    const step = Math.max(Math.ceil(end / 300), 1);
+  const step = Math.max(Math.ceil(end / 300), 1);
+  let lastTime = performance.now();
 
-    function animate(now) {
-      if (isPaused) {
-        lastTime = now;
-        requestAnimationFrame(animate);
+  function animate(now) {
+    if (isPaused) {
+      lastTime = now;
+      requestAnimationFrame(animate);
+      return;
+    }
+
+    const elapsed = now - lastTime;
+    if (elapsed >= speed) {
+      count += step;
+      lastTime = now;
+
+      if (count >= end) {
+        count = end;
+        counter.innerText = count;
+        if (document.getElementById("autoSize").checked) autoFontSize();
+        stopRecording();
         return;
       }
 
-      elapsed += now - lastTime;
-      lastTime = now;
-
-      if (elapsed >= speed) {
-        count += step;
-        elapsed = 0;
-
-        if (count >= end) {
-          count = end;
-          counter.innerText = count;
-          if (document.getElementById("autoSize").checked) autoFontSize();
-          setTimeout(() => {
-            stopRecording();
-            document.getElementById("exportBtn").style.display = "inline-block";
-          }, 500);
-          return;
-        }
-
-        counter.innerText = count;
-        if (document.getElementById("autoSize").checked) autoFontSize();
-      }
-
-      requestAnimationFrame(animate);
+      counter.innerText = count;
+      if (document.getElementById("autoSize").checked) autoFontSize();
     }
 
     requestAnimationFrame(animate);
-  }, 300);
+  }
+
+  requestAnimationFrame(animate);
 }
 
 function pauseCounter() {
@@ -247,7 +220,7 @@ function backToSetup() {
   document.getElementById("timelapseOverlay").style.display = "none";
 }
 
-document.addEventListener('keydown', (e) => {
+document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") backToSetup();
 });
 
@@ -266,7 +239,7 @@ function autoFontSize() {
     counter.style.fontSize = fontSize + "px";
   }
 
-  counter.style.fontSize = (fontSize - 1) + "px";
+  counter.style.fontSize = fontSize - 1 + "px";
 }
 
 function toggleSizeInputs() {
