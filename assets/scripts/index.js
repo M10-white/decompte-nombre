@@ -5,7 +5,10 @@ let renderInterval;
 let count = 0;
 let isPaused = false;
 
+console.log("✅ Script chargé correctement");
+
 window.addEventListener("DOMContentLoaded", () => {
+  console.log("✅ DOM ready");
   document.getElementById("loadingOverlay").classList.add("hidden");
   document.getElementById("exportOverlay").classList.add("hidden");
 });
