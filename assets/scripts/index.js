@@ -55,7 +55,7 @@ function setupCanvas() {
   const autoSize = document.getElementById("autoSize").checked;
   const textHeight = parseInt(document.getElementById("textHeight").value, 10);
   const textWidth = parseInt(document.getElementById("textWidth").value, 10);
-  const scale = 3;
+  const scale = 5;
 
   const canvas = document.createElement("canvas");
   canvas.width = autoSize ? 1280 : (textWidth || 600) * scale;
@@ -63,13 +63,17 @@ function setupCanvas() {
 
   canvasStream = canvas.captureStream();
   const ctx = canvas.getContext("2d", { alpha: true });
+
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+
   canvas.style.backgroundColor = "transparent";
   canvas.style.opacity = "1";
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = "rgba(0,0,0,0)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   canvas.style.display = "none";
-  canvas.style.pointerEvents = "none"; // évite toute interaction
+  canvas.style.pointerEvents = "none";
 
   renderInterval = setInterval(() => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
