@@ -5,6 +5,11 @@ let renderInterval;
 let count = 0;
 let isPaused = false;
 
+window.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("loadingOverlay").classList.add("hidden");
+  document.getElementById("exportOverlay").classList.add("hidden");
+});
+
 const loadingOverlay = document.createElement("div");
 loadingOverlay.id = "loadingOverlay";
 loadingOverlay.style = `
