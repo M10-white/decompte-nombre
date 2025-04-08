@@ -19,6 +19,11 @@ app.use(cors());
 // Sert le frontend (index.html + assets)
 app.use(express.static(path.join(__dirname, "..")));
 
+// 🔥 Corrige l'accès à la page d'accueil (GET /)
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "index.html"));
+});
+
 app.post("/convert", upload.single("video"), (req, res) => {
   console.log("✅ Route /convert bien appelée");
 
