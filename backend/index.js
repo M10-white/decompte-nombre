@@ -53,10 +53,12 @@ app.post("/convert", upload.single("video"), (req, res) => {
 
   ffmpeg(req.file.path)
     .outputOptions([
-      "-pix_fmt yuv420p",
-      "-movflags +faststart", // optimisation pour lecture web
-      "-preset ultrafast",     // moins exigeant en ressources
-      "-max_muxing_queue_size 1024"
+        "-r 30",
+        "-pix_fmt yuv420p",
+        "-movflags +faststart", // optimisation pour lecture web
+        "-b:v 1M",
+        "-preset ultrafast",     // moins exigeant en ressources
+        "-max_muxing_queue_size 1024", // pour éviter les erreurs de muxing
     ])
     .toFormat(format)
     .on("start", commandLine => {

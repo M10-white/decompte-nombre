@@ -1,43 +1,41 @@
-let count = 0;
-let end = 0;
-let isPaused = false;
-let speed = 10;
-let mediaRecorder;
 let recordedChunks = [];
-let canvas, ctx, canvasStream;
+let mediaRecorder;
+let canvasStream;
 let renderInterval;
+let count = 0;
+let isPaused = false;
+
+const loadingOverlay = document.createElement("div");
+loadingOverlay.id = "loadingOverlay";
+loadingOverlay.style = `
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.8); z-index: 9999;
+  color: white; display: flex; align-items: center; justify-content: center;
+  font-size: 24px; font-family: sans-serif; display: none;
+`;
+loadingOverlay.textContent = "Chargement...";
+document.body.appendChild(loadingOverlay);
+
+function showLoading(text = "Chargement...") {
+  loadingOverlay.textContent = text;
+  loadingOverlay.style.display = "flex";
+}
+
+function hideLoading() {
+  loadingOverlay.style.display = "none";
+}
 
 function startTimelapse() {
   count = 0;
-  end = parseInt(document.getElementById("target").value, 10);
-  speed = parseFloat(document.getElementById("speed").value, 10);
-  const color = document.getElementById("color").value;
-  const font = document.getElementById("font").value;
-  const bold = document.getElementById("bold").checked;
-  const counter = document.getElementById("counter");
-  const wrapper = document.getElementById("counter-wrapper");
-
-  if (isNaN(end) || end <= 0) return;
-
-  counter.style.color = color;
-  counter.style.fontFamily = font;
-  counter.style.fontWeight = bold ? "bold" : "normal";
-  counter.style.fontSize = "200px";
-  counter.style.width = "auto";
-  counter.style.height = "auto";
-
-  wrapper.style.width = "90vw";
-  wrapper.style.height = "50vh";
-  wrapper.style.display = "flex";
-  wrapper.style.alignItems = "center";
-  wrapper.style.justifyContent = "center";
-  wrapper.style.margin = "0 auto";
-  wrapper.style.overflow = "hidden";
-
-  setupCanvas();
-  startRecording();
-  document.getElementById("timelapseOverlay").style.display = "flex";
-  runCounter();
+  isPaused = false;
+  showLoading("Préparation du timelapse...");
+  setTimeout(() => {
+    setupCanvas();
+    startRecording();
+    document.getElementById("timelapseOverlay").style.display = "flex";
+    hideLoading();
+    runCounter();
+  }, 300); // petit délai pour setup visuel
 }
 
 function setupCanvas() {
@@ -47,17 +45,12 @@ function setupCanvas() {
   const textWidth = parseInt(document.getElementById("textWidth").value, 10);
   const scale = 3;
 
-  canvas = document.createElement("canvas");
-  if (autoSize) {
-    canvas.width = 1280;
-    canvas.height = 720;
-  } else {
-    canvas.width = (textWidth || 600) * scale;
-    canvas.height = (textHeight || 300) * scale;
-  }
+  const canvas = document.createElement("canvas");
+  canvas.width = autoSize ? 1280 : (textWidth || 600) * scale;
+  canvas.height = autoSize ? 720 : (textHeight || 300) * scale;
 
-  ctx = canvas.getContext("2d", { alpha: true });
   canvasStream = canvas.captureStream();
+  const ctx = canvas.getContext("2d", { alpha: true });
 
   renderInterval = setInterval(() => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -97,8 +90,9 @@ function startRecording() {
 
 async function downloadRecording() {
   const format = document.getElementById("format").value;
-
   if (recordedChunks.length === 0) return;
+
+  showLoading("Conversion de la vidéo...");
 
   const blob = new Blob(recordedChunks, { type: "video/webm" });
 
@@ -110,20 +104,21 @@ async function downloadRecording() {
     document.body.appendChild(a);
     a.click();
     URL.revokeObjectURL(url);
+    hideLoading();
   } else {
     const formData = new FormData();
     formData.append("video", blob);
 
     try {
-      const res = await fetch(`https://timelapse-counter-production.up.railway.app/convert?format=${format}`, {
+      const res = await fetch(`/convert?format=${format}`, {
         method: "POST",
         body: formData
       });
 
       if (!res.ok) throw new Error("Conversion failed");
 
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
+      const convertedBlob = await res.blob();
+      const url = URL.createObjectURL(convertedBlob);
       const a = document.createElement("a");
       a.href = url;
       a.download = `timelapse.${format}`;
@@ -132,6 +127,9 @@ async function downloadRecording() {
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Conversion failed", err);
+      alert("La conversion a échoué.");
+    } finally {
+      hideLoading();
     }
   }
 }
@@ -146,6 +144,8 @@ function stopRecording() {
 
 function runCounter() {
   const counter = document.getElementById("counter");
+  const end = parseInt(document.getElementById("target").value);
+  const speed = parseInt(document.getElementById("speed").value);
   counter.innerText = count;
   document.getElementById("exportBtn").style.display = "none";
   if (document.getElementById("autoSize").checked) autoFontSize();
