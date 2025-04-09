@@ -44,7 +44,7 @@ function startTimelapse() {
     if (e.key.toLowerCase() === "s") {
       isPaused = false;
       document.getElementById("readyOverlay").style.display = "none";
-      runCounter();
+      waitForFontThenStart();
       document.removeEventListener("keydown", handleStartKey); // nettoyage
     }
   };
@@ -87,6 +87,19 @@ function setupCanvas() {
 
   overlay.appendChild(canvas);
 }
+
+function waitForFontThenStart() {
+  const fontLoad = document.fonts.load("1em OPTIGamma");
+
+  Promise.all(fontLoad).then(() => {
+    console.log("✅ Police OPTIGamma bien chargée");
+    runCounter(); // ➤ commence seulement une fois la police prête
+  }).catch(() => {
+    console.warn("❌ Impossible de charger la police OPTIGamma, fallback utilisé");
+    runCounter();
+  });
+}
+
 
 function runCounter() {
   const end = parseInt(document.getElementById("target").value);
