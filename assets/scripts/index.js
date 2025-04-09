@@ -2,15 +2,33 @@ let count = 0;
 let isPaused = false;
 let renderLoop;
 let canvas, ctx;
+let keyBuffer = "";
 
 console.log("✅ Script chargé - Mode affichage uniquement");
 
 window.addEventListener("DOMContentLoaded", () => {
   document.getElementById("startBtn").addEventListener("click", startTimelapse);
-  document.addEventListener("keydown", e => {
+  document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") stopTimelapse();
+    handleBackgroundTrigger(e); // Ecoute globale pour "enzo"
   });
 });
+
+function handleBackgroundTrigger(e) {
+  keyBuffer += e.key.toLowerCase();
+
+  if (keyBuffer.length > 10) keyBuffer = keyBuffer.slice(-10);
+
+  if (keyBuffer.includes("enzo")) {
+    activateBackgroundAnimation();
+    keyBuffer = "";
+  }
+}
+
+function activateBackgroundAnimation() {
+  document.body.classList.add("animated-background");
+  console.log("🎉 Fond animé activé via le mot-clé 'enzo'");
+}
 
 function startTimelapse() {
   count = 0;
@@ -85,12 +103,9 @@ function runCounter() {
     if (elapsed >= speed) {
       count += step;
       lastTime = now;
-      if (count >= end) {
-        count = end;
-      }
+      if (count >= end) count = end;
     }
 
-    // Rendu du texte dans le canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = color;
 
