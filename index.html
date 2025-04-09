@@ -5,27 +5,32 @@
   <link rel="stylesheet" href="assets/styles/index.css">
   <link rel="icon" href="assets/images/favicon.jpg" type="image/jpeg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Compteur de timelapse personnalisé avec options de style et d'exportation.">
-  <meta name="keywords" content="timelapse, compteur, personnalisé, style, exportation, vidéo">
+  <meta name="description" content="Compteur de timelapse personnalisé avec options de style.">
+  <meta name="keywords" content="timelapse, compteur, personnalisé, style, vidéo">
   <meta name="author" content="CHKWEBDEV">
   <title>Timelapse Counter</title>
 </head>
+
 <body>
-
   <div id="setup">
-    <label for="target">Nombre final :</label>
-    <input type="number" id="target" placeholder="ex: 1500" />
-
-    <label for="speed">Vitesse (ms entre incréments) :</label>
-    <input type="number" id="speed" value="10" />
-
-    <button onclick="startTimelapse()">Lancer le Timelapse</button>
+    <div class="control">
+      <label for="target">Nombre final :</label>
+      <input type="number" id="target" value="1000" />
+    </div>
+    <div class="control">
+      <label for="speed">Vitesse (ms) :</label>
+      <input type="number" id="speed" value="10" />
+    </div>
+    <div class="control">
+      <label for="color">Couleur du texte :</label>
+      <input type="color" id="color" value="#ffffff" />
+    </div>
+    <button id="startBtn">Lancer le timelapse</button>
   </div>
 
   <div id="timelapseOverlay">
-    <div id="counter">0</div>
   </div>
 
-  <script src="assets/styles/index.css"></script>
+  <script src="assets/scripts/index.js"></script>
 </body>
 </html>

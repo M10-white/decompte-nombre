@@ -1,7 +1,14 @@
+@font-face {
+  font-family: 'OPTIGamma';
+  src: url('../fonts/OPTIGamma.otf') format('opentype');
+}
+
 body {
   margin: 0;
-  background-color: black;
-  font-family: Arial, sans-serif;
+  background: black;
+  font-family: 'Segoe UI', sans-serif;
+  color: white;
+  overflow: hidden;
 }
 
 #setup {
@@ -10,51 +17,98 @@ body {
   align-items: center;
   justify-content: center;
   height: 100vh;
-  color: white;
-  gap: 20px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.control {
+  margin: 14px;
+  text-align: center;
+  animation: slideUp 0.6s ease-out;
 }
 
 label {
-  font-size: 1.2em;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 6px;
+  font-size: 1rem;
+  opacity: 0.85;
+}
+
+input, button {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 1.1rem;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.05);
 }
 
 input {
-  padding: 5px;
-  font-size: 1em;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 240px;
+}
+
+input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #fff;
 }
 
 button {
-  padding: 10px 20px;
-  font-size: 1em;
+  background: white;
+  color: black;
+  font-weight: bold;
   cursor: pointer;
-  background-color: white;
-  border: none;
-  border-radius: 5px;
+  padding: 12px 20px;
+}
+
+button:hover {
+  background: #c5c5c5;
+  transform: scale(1.05);
+}
+
+#startBtn {
+  margin-top: 2rem;
+  background-color: #acacac;
+  animation: pulse 1.5s infinite;
 }
 
 #timelapseOverlay {
   display: none;
   position: fixed;
-  top: 0; left: 0;
+  font-family: 'OPTIGamma', sans-serif;
+  font-smooth: always;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  top: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
   background: black;
   color: white;
+  z-index: 9999;
   justify-content: center;
   align-items: center;
-  z-index: 10;
 }
 
-#counter {
-  font-size: 10vw;
-  font-weight: bold;
-  color: white;
-  text-align: center;
-  animation: pop 0.4s ease;
+/* ✨ Animations */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.3); }
+  70% { box-shadow: 0 0 0 10px rgba(255,255,255,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
 }
 
 @keyframes pop {
-  0% { transform: scale(0.7); opacity: 0.6; }
+  0% { transform: scale(0.7); opacity: 0.4; }
   50% { transform: scale(1.2); opacity: 1; }
   100% { transform: scale(1); }
 }
