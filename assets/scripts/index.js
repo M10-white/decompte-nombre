@@ -14,13 +14,24 @@ window.addEventListener("DOMContentLoaded", () => {
 
 function startTimelapse() {
   count = 0;
-  isPaused = false;
+  isPaused = true; // en pause initialement
 
   document.getElementById("setup").style.display = "none";
   document.getElementById("timelapseOverlay").style.display = "flex";
+  document.getElementById("readyOverlay").style.display = "flex";
 
-  setupCanvas(); // Initialisation canvas + contexte
-  runCounter();
+  setupCanvas();
+
+  const handleStartKey = (e) => {
+    if (e.key.toLowerCase() === "s") {
+      isPaused = false;
+      document.getElementById("readyOverlay").style.display = "none";
+      runCounter();
+      document.removeEventListener("keydown", handleStartKey); // nettoyage
+    }
+  };
+
+  document.addEventListener("keydown", handleStartKey);
 }
 
 function stopTimelapse() {

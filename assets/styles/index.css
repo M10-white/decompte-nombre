@@ -44,18 +44,18 @@ input, button {
   box-shadow: 0 2px 4px rgba(255, 255, 255, 0.05);
 }
 
-input {
-  background: rgba(255, 255, 255, 0.1);
+input[type="number"],
+input[type="color"] {
+  background-color: #1c1c1c;
   color: white;
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  width: 240px;
+  border: 1px solid #444;
+  transition: all 0.3s ease;
 }
 
 input:focus {
   outline: none;
-  background: rgba(255, 255, 255, 0.2);
-  border-color: #fff;
+  border-color: #999;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
 }
 
 button {
@@ -67,8 +67,13 @@ button {
 }
 
 button:hover {
-  background: #c5c5c5;
-  transform: scale(1.05);
+  background: #d0d0d0;
+  transform: scale(1.02);
+}
+
+button:active {
+  transform: scale(0.98);
+  background: #bbb;
 }
 
 #startBtn {
@@ -93,6 +98,30 @@ button:hover {
   z-index: 9999;
   justify-content: center;
   align-items: center;
+}
+
+#readyOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  display: none;
+  z-index: 99999;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Segoe UI', sans-serif;
+  text-align: center;
+  font-size: 1.5rem;
+  padding: 20px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+#readyOverlay p {
+  animation: pulse 1.5s infinite;
+  padding: 0.5rem;
 }
 
 /* ✨ Animations */
