@@ -8,91 +8,24 @@
   <meta name="description" content="Compteur de timelapse personnalisé avec options de style et d'exportation.">
   <meta name="keywords" content="timelapse, compteur, personnalisé, style, exportation, vidéo">
   <meta name="author" content="CHKWEBDEV">
-  <script src="assets/scripts/index.js" defer></script>
   <title>Timelapse Counter</title>
 </head>
 <body>
 
-    <div id="setup">
-        <h1>Décompte Timelapse Personnalisé</h1>
-        <h4>Fond transparent disponible pour les vidéos .webm et .mov</h4>
-        <div class="controls">
-          <div class="control-group">
-            <label>Nombre final :</label>
-            <input type="number" id="target" class="neumorphic" placeholder="Ex : 156254" required/>
-          </div>
-          <div class="control-group">
-            <label>Vitesse (ms) :</label>
-            <input type="number" id="speed" class="neumorphic" min="1" value="10" />
-          </div>
-          <div class="control-group">
-            <label>Couleur du texte :</label>
-            <input type="color" id="color" />
-          </div>
-          <div class="control-group">
-            <label>Police :</label>
-            <select id="font" class="neumorphic">
-              <option value="'Segoe UI', sans-serif">Segoe UI</option>
-              <option value="'Courier New', monospace">Courier New</option>
-              <option value="'Arial', sans-serif">Arial</option>
-              <option value="'Georgia', serif">Georgia</option>
-              <option value="'Comic Sans MS', cursive">Comic Sans</option>
-              <option value="'OPTIGamma', sans-serif">OPTIGamma</option>
-            </select>
-          </div>
-          <div class="control-group">
-            <label>Texte en gras :</label>
-            <input type="checkbox" id="bold" />
-          </div>
-          <div class="control-group">
-            <label>Taille auto :</label>
-            <input type="checkbox" id="autoSize" checked onchange="toggleSizeInputs()" />
-          </div>
-          <div class="control-group" id="textHeightGroup">
-            <label>Hauteur (px) :</label>
-            <input type="number" id="textHeight" class="neumorphic" placeholder="Ex : 200" />
-          </div>
-          <div class="control-group" id="textWidthGroup">
-            <label>Largeur (px) :</label>
-            <input type="number" id="textWidth" class="neumorphic" placeholder="Ex : 600" />
-          </div>
-        </div>
-        <div class="control-group">
-          <label for="format">Format :</label>
-          <select id="format" class="neumorphic">
-            <option value="webm">WEBM</option>
-            <option value="mp4">MP4</option>
-            <option value="mov">MOV</option>
-          </select>
-        </div>                       
-        <div class="button-group">
-          <button onclick="startTimelapse()" class="neumorphic">Lancer</button>
-        </div>
-      </div>
-    
-      <div id="timelapseOverlay">
-        <div id="counter-wrapper">
-          <div id="counter">0</div>
-        </div>
-        <div class="view-buttons" id="viewButtons">
-          <button onclick="pauseCounter()" class="neumorphic">Pause</button>
-          <button onclick="resumeCounter()" class="neumorphic">Reprendre</button>
-          <button onclick="restartCounter()" class="neumorphic">Rejouer</button>
-          <button onclick="backToSetup()" class="neumorphic">Retour</button>
-          <button id="exportBtn" onclick="downloadRecording()" class="neumorphic" style="display:none; margin-left: 10px;">Exporter la vidéo</button>
-        </div>
-      </div>
+  <div id="setup">
+    <label for="target">Nombre final :</label>
+    <input type="number" id="target" placeholder="ex: 1500" />
 
-<!-- Écran de chargement du timelapse -->
-<div id="loadingOverlay" class="hidden">
-  <div class="spinner"></div>
-  Préparation du timelapse...
-</div>
+    <label for="speed">Vitesse (ms entre incréments) :</label>
+    <input type="number" id="speed" value="10" />
 
-<!-- Écran de chargement pour l'exportation -->
-<div id="exportOverlay" class="hidden">
-  <div class="spinner"></div>
-  Exportation en cours, merci de patienter...
-</div>
+    <button onclick="startTimelapse()">Lancer le Timelapse</button>
+  </div>
+
+  <div id="timelapseOverlay">
+    <div id="counter">0</div>
+  </div>
+
+  <script src="assets/styles/index.css"></script>
 </body>
 </html>
